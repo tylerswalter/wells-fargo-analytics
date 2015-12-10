@@ -63,108 +63,128 @@
 <h3>
 <a id="code" class="anchor" href="#code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code</h3>
 
-<p><code>dynamicRequire &lt;- function(reqPackages){</code>
-  <code>for(pkg in reqPackages ){</code>
-    <code>if(!require(pkg, character.only = TRUE)){</code>
-      <code>install.packages(pkg, dependencies = TRUE)</code>
-      <code>require(pkg, quietly = TRUE, character.only = TRUE)</code>
-    <code>}</code>
-  <code>}</code>
-<code>}</code>
-<code>reqPackages &lt;- c("plyr", "tm", "quanteda", "stringr", "ggplot2",</code>
-                 <code>"lsa","NLP", "openNLP", "SnowballC", "lsa", "tau",</code>
-                 <code>"RColorBrewer", "wordcloud")</code>
-<code>dynamicRequire(reqPackages)</code>
-<code>myStopWords &lt;- as.character(read.csv("myStopWords.txt", header = FALSE,</code>
-                                     <code>stringsAsFactors = FALSE))</code>
-<code>afinnTerms &lt;- read.delim(file = "AFINN-111.txt", header = FALSE,</code>
-                         <code>stringsAsFactors = FALSE)</code>
-<code>names(afinnTerms) &lt;- c("word", "score")</code>
-<code>myDict &lt;- dictionary(afinnTerms)</code>
-<code>dfTable &lt;- read.table('dataset.txt',header=TRUE, sep="|", stringsAsFactors = FALSE)</code>
-<code>dfTxtAndSrc &lt;- dfTable[, c("MediaType","FullText")]</code>
-<code>dfTxts &lt;- dfTxtAndSrc["FullText"]</code>
-<code>dfTxts$FullText[dfTxts$FullText==""] &lt;- NA</code>
-<code>dfTxtAndSrc$FullText[dfTxts$FullText==""] &lt;- NA</code>
-<code>dfTxts &lt;- na.omit(dfTxts)</code>
-<code>dfTxtAndSrc &lt;- na.omit(dfTxts)</code>
-<code>dfTxts &lt;- as.data.frame(iconv(dfTxts$FullText, "latin1", "ASCII", sub=""))</code>
-<code>colnames(dfTxts) = 'FullText'</code>
-<code>dfTxts$FullText &lt;- gsub("[[:punct:]]", "", dfTxts$FullText, perl = TRUE)</code>
-<code>dfTxts$FullText &lt;- gsub("[[:digit:]]", "", dfTxts$FullText, perl = TRUE)</code>
-<code>dfTxts$FullText &lt;- gsub("[[:cntrl:]]", "", dfTxts$FullText, perl = TRUE)</code>
-<code>dfTxts$FullText &lt;- tolower(dfTxts$FullText)</code>
-<code>indBankA = which(sapply(dfTxts$FullText,function(x) grepl("banka",x)))</code>
-<code>indBankB = which(sapply(dfTxts$FullText,function(x) grepl("bankb",x)))</code>
-<code>indBankC = which(sapply(dfTxts$FullText,function(x) grepl("bankc",x)))</code>
-<code>indBankD = which(sapply(dfTxts$FullText,function(x) grepl("bankd",x)))</code>
-<code>indBankA = which(sapply(dfTxts$FullText,function(x) grepl("banka",x)))</code>
-<code>charBankA = dfTxts[indBankA, ]</code>
-<code>corpA &lt;- corpus(charBankA)</code>
-<code>summary(corpA)</code>
-<code>dfBankA &lt;- as.data.frame(charBankA)</code>
-<code>txtA &lt;- c("twithndlbanka choose a checking account banking managing spending banka makes easy manage banking.")</code>
-<code>tokenize(txtA)</code>
-<code>dfmBankA&lt;- dfm(corpA, ignoredFeatures = c(stopwords("english")))</code>
-<code>plot(dfmBankA, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))</code>
-<code>dfmBankA &lt;- dfm(corpB, ignoredFeatures = c("twithndlbanka", "name", "banka","twithndl",</code>
-                                           <code>"internet","rettwit", "bank", "bankb",</code>
-                                           <code>stopwords("english")))</code>
-<code>plot(dfmBankA, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))</code>
-<code>indBankB = which(sapply(dfTxts$FullText,function(x) grepl("bankb",x)))</code>
-<code>charBankB = dfTxts[indBankB, ]</code>
-<code>corpB &lt;- corpus(charBankB)</code>
-<code>summary(corpB)</code>
-<code>dfBankB&lt;- as.data.frame(charBankB)</code>
-<code>indBankB = which(sapply(dfTxts$FullText,function(x) grepl("bankb",x)))</code>
-<code>charBankB = dfTxts[indBankB, ]</code>
-<code>corpB &lt;- corpus(charBankB)</code>
-<code>summary(corpB)</code>
-<code>dfBankB &lt;- as.data.frame(charBankB)</code>
-<code>txtB &lt;- c("twithndlbankb choose a checking account banking managing spending bankb makes easy manage banking.")</code>
-<code>tokenize(txtB)</code>
-<code>dfmBankB &lt;- dfm(corpB, ignoredFeatures = c(stopwords("english")))</code>
-<code>plot(dfmBankB, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))</code>
-<code>dfmBankB &lt;- dfm(corpB, ignoredFeatures = c("twithndlbankb", "name", "banka","twithndl",</code>
-                                           <code>"internet","rettwit", "bank", "bankc", "bankb", "bankd",</code>
-                                           <code>stopwords("english")))</code>
-<code>plot(dfmBankB, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))</code>
-<code>indBankC = which(sapply(dfTxts$FullText,function(x) grepl("bankc",x)))</code>
-<code>charBankC = dfTxts[indBankC, ]</code>
-<code>corpC &lt;- corpus(charBankC)</code>
-<code>summary(corpC)</code>
-<code>dfBankC&lt;- as.data.frame(charBankC)</code>
-<code>indBankC = which(sapply(dfTxts$FullText,function(x) grepl("bankc",x)))</code>
-<code>charBankC = dfTxts[indBankC, ]</code>
-<code>corpC &lt;- corpus(charBankC)</code>
-<code>summary(corpC)</code>
-<code>dfBankC &lt;- as.data.frame(charBankC)</code>
-<code>txtC &lt;- c("twithndlbankc choose a checking account banking managing spending bankb makes easy manage banking.")</code>
-<code>tokenize(txtC)</code>
-<code>dfmBankC &lt;- dfm(corpC, ignoredFeatures = c(stopwords("english")))</code>
-<code>plot(dfmBankC, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))</code>
-<code>dfmBankC &lt;- dfm(corpC, ignoredFeatures = c("twithndlbankc", "name", "banka","twithndl",</code>
-                                           <code>"internet","rettwit", "bank", "bankc", "bankb", "bankd",</code>
-                                           <code>stopwords("english")))</code>
-<code>plot(dfmBankC, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))</code>
-<code>indBankD = which(sapply(dfTxts$FullText,function(x) grepl("bankd",x)))</code>
-<code>charBankD = dfTxts[indBankD, ]</code>
-<code>corpD &lt;- corpus(charBankD)</code>
-<code>summary(corpD)</code>
-<code>dfBankD&lt;- as.data.frame(charBankD)</code>
-<code>indBankD = which(sapply(dfTxts$FullText,function(x) grepl("bankd",x)))</code>
-<code>charBankD = dfTxts[indBankD, ]</code>
-<code>corpD &lt;- corpus(charBankD)</code>
-<code>summary(corpD)</code>
-<code>dfBankD &lt;- as.data.frame(charBankD)</code>
-<code>txtD &lt;- c("twithndlbankd choose a checking account banking managing spending bankd makes easy manage banking.")</code>
-<code>tokenize(txtD)</code>
-<code>dfmBankD &lt;- dfm(corpD, ignoredFeatures = c(stopwords("english")))</code>
-<code>plot(dfmBankD, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))</code>
-<code>dfmBankD &lt;- dfm(corpD, ignoredFeatures = c("twithndlbankd", "name", "banka","twithndl",</code>
-                                           <code>"internet","rettwit", "bank", "bankc", "bankb", "bankd",</code>
-                                           <code>stopwords("english")))</code>
-<code>plot(dfmBankD, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))</code></p>
+<ol>
+<li><code>dynamicRequire &lt;- function(reqPackages){</code></li>
+<li>  <code>for(pkg in reqPackages ){</code>
+</li>
+<li>    <code>if(!require(pkg, character.only = TRUE)){</code>
+</li>
+<li>      <code>install.packages(pkg, dependencies = TRUE)</code>
+</li>
+<li>      <code>require(pkg, quietly = TRUE, character.only = TRUE)</code>
+</li>
+<li>    <code>}</code>
+</li>
+<li>  <code>}</code>
+</li>
+<li><code>}</code></li>
+<li><code>reqPackages &lt;- c("plyr", "tm", "quanteda", "stringr", "ggplot2",</code></li>
+<li>                 <code>"lsa","NLP", "openNLP", "SnowballC", "lsa", "tau",</code>
+</li>
+<li>                 <code>"RColorBrewer", "wordcloud")</code>
+</li>
+<li><code>dynamicRequire(reqPackages)</code></li>
+<li><code>myStopWords &lt;- as.character(read.csv("myStopWords.txt", header = FALSE,</code></li>
+<li>                                     <code>stringsAsFactors = FALSE))</code>
+</li>
+<li><code>afinnTerms &lt;- read.delim(file = "AFINN-111.txt", header = FALSE,</code></li>
+<li>                         <code>stringsAsFactors = FALSE)</code>
+</li>
+<li><code>names(afinnTerms) &lt;- c("word", "score")</code></li>
+<li><code>myDict &lt;- dictionary(afinnTerms)</code></li>
+<li><code>dfTable &lt;- read.table('dataset.txt',header=TRUE, sep="|", stringsAsFactors = FALSE)</code></li>
+<li><code>dfTxtAndSrc &lt;- dfTable[, c("MediaType","FullText")]</code></li>
+<li><code>dfTxts &lt;- dfTxtAndSrc["FullText"]</code></li>
+<li><code>dfTxts$FullText[dfTxts$FullText==""] &lt;- NA</code></li>
+<li><code>dfTxtAndSrc$FullText[dfTxts$FullText==""] &lt;- NA</code></li>
+<li><code>dfTxts &lt;- na.omit(dfTxts)</code></li>
+<li><code>dfTxtAndSrc &lt;- na.omit(dfTxts)</code></li>
+<li><code>dfTxts &lt;- as.data.frame(iconv(dfTxts$FullText, "latin1", "ASCII", sub=""))</code></li>
+<li><code>colnames(dfTxts) = 'FullText'</code></li>
+<li><code>dfTxts$FullText &lt;- gsub("[[:punct:]]", "", dfTxts$FullText, perl = TRUE)</code></li>
+<li><code>dfTxts$FullText &lt;- gsub("[[:digit:]]", "", dfTxts$FullText, perl = TRUE)</code></li>
+<li><code>dfTxts$FullText &lt;- gsub("[[:cntrl:]]", "", dfTxts$FullText, perl = TRUE)</code></li>
+<li><code>dfTxts$FullText &lt;- tolower(dfTxts$FullText)</code></li>
+<li><code>indBankA = which(sapply(dfTxts$FullText,function(x) grepl("banka",x)))</code></li>
+<li><code>indBankB = which(sapply(dfTxts$FullText,function(x) grepl("bankb",x)))</code></li>
+<li><code>indBankC = which(sapply(dfTxts$FullText,function(x) grepl("bankc",x)))</code></li>
+<li><code>indBankD = which(sapply(dfTxts$FullText,function(x) grepl("bankd",x)))</code></li>
+<li><code>indBankA = which(sapply(dfTxts$FullText,function(x) grepl("banka",x)))</code></li>
+<li><code>charBankA = dfTxts[indBankA, ]</code></li>
+<li><code>corpA &lt;- corpus(charBankA)</code></li>
+<li><code>summary(corpA)</code></li>
+<li><code>dfBankA &lt;- as.data.frame(charBankA)</code></li>
+<li><code>txtA &lt;- c("twithndlbanka choose a checking account banking managing spending banka makes easy manage banking.")</code></li>
+<li><code>tokenize(txtA)</code></li>
+<li><code>dfmBankA&lt;- dfm(corpA, ignoredFeatures = c(stopwords("english")))</code></li>
+<li><code>plot(dfmBankA, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))</code></li>
+<li><code>dfmBankA &lt;- dfm(corpB, ignoredFeatures = c("twithndlbanka", "name", "banka","twithndl",</code></li>
+<li>                                           <code>"internet","rettwit", "bank", "bankb",</code>
+</li>
+<li>                                           <code>stopwords("english")))</code>
+</li>
+<li><code>plot(dfmBankA, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))</code></li>
+<li><code>indBankB = which(sapply(dfTxts$FullText,function(x) grepl("bankb",x)))</code></li>
+<li><code>charBankB = dfTxts[indBankB, ]</code></li>
+<li><code>corpB &lt;- corpus(charBankB)</code></li>
+<li><code>summary(corpB)</code></li>
+<li><code>dfBankB&lt;- as.data.frame(charBankB)</code></li>
+<li><code>indBankB = which(sapply(dfTxts$FullText,function(x) grepl("bankb",x)))</code></li>
+<li><code>charBankB = dfTxts[indBankB, ]</code></li>
+<li><code>corpB &lt;- corpus(charBankB)</code></li>
+<li><code>summary(corpB)</code></li>
+<li><code>dfBankB &lt;- as.data.frame(charBankB)</code></li>
+<li><code>txtB &lt;- c("twithndlbankb choose a checking account banking managing spending bankb makes easy manage banking.")</code></li>
+<li><code>tokenize(txtB)</code></li>
+<li><code>dfmBankB &lt;- dfm(corpB, ignoredFeatures = c(stopwords("english")))</code></li>
+<li><code>plot(dfmBankB, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))</code></li>
+<li><code>dfmBankB &lt;- dfm(corpB, ignoredFeatures = c("twithndlbankb", "name", "banka","twithndl",</code></li>
+<li>                                           <code>"internet","rettwit", "bank", "bankc", "bankb", "bankd",</code>
+</li>
+<li>                                           <code>stopwords("english")))</code>
+</li>
+<li><code>plot(dfmBankB, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))</code></li>
+<li><code>indBankC = which(sapply(dfTxts$FullText,function(x) grepl("bankc",x)))</code></li>
+<li><code>charBankC = dfTxts[indBankC, ]</code></li>
+<li><code>corpC &lt;- corpus(charBankC)</code></li>
+<li><code>summary(corpC)</code></li>
+<li><code>dfBankC&lt;- as.data.frame(charBankC)</code></li>
+<li><code>indBankC = which(sapply(dfTxts$FullText,function(x) grepl("bankc",x)))</code></li>
+<li><code>charBankC = dfTxts[indBankC, ]</code></li>
+<li><code>corpC &lt;- corpus(charBankC)</code></li>
+<li><code>summary(corpC)</code></li>
+<li><code>dfBankC &lt;- as.data.frame(charBankC)</code></li>
+<li><code>txtC &lt;- c("twithndlbankc choose a checking account banking managing spending bankb makes easy manage banking.")</code></li>
+<li><code>tokenize(txtC)</code></li>
+<li><code>dfmBankC &lt;- dfm(corpC, ignoredFeatures = c(stopwords("english")))</code></li>
+<li><code>plot(dfmBankC, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))</code></li>
+<li><code>dfmBankC &lt;- dfm(corpC, ignoredFeatures = c("twithndlbankc", "name", "banka","twithndl",</code></li>
+<li>                                           <code>"internet","rettwit", "bank", "bankc", "bankb", "bankd",</code>
+</li>
+<li>                                           <code>stopwords("english")))</code>
+</li>
+<li><code>plot(dfmBankC, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))</code></li>
+<li><code>indBankD = which(sapply(dfTxts$FullText,function(x) grepl("bankd",x)))</code></li>
+<li><code>charBankD = dfTxts[indBankD, ]</code></li>
+<li><code>corpD &lt;- corpus(charBankD)</code></li>
+<li><code>summary(corpD)</code></li>
+<li><code>dfBankD&lt;- as.data.frame(charBankD)</code></li>
+<li><code>indBankD = which(sapply(dfTxts$FullText,function(x) grepl("bankd",x)))</code></li>
+<li><code>charBankD = dfTxts[indBankD, ]</code></li>
+<li><code>corpD &lt;- corpus(charBankD)</code></li>
+<li><code>summary(corpD)</code></li>
+<li><code>dfBankD &lt;- as.data.frame(charBankD)</code></li>
+<li><code>txtD &lt;- c("twithndlbankd choose a checking account banking managing spending bankd makes easy manage banking.")</code></li>
+<li><code>tokenize(txtD)</code></li>
+<li><code>dfmBankD &lt;- dfm(corpD, ignoredFeatures = c(stopwords("english")))</code></li>
+<li><code>plot(dfmBankD, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))</code></li>
+<li><code>dfmBankD &lt;- dfm(corpD, ignoredFeatures = c("twithndlbankd", "name", "banka","twithndl",</code></li>
+<li>                                           <code>"internet","rettwit", "bank", "bankc", "bankb", "bankd",</code>
+</li>
+<li>                                           <code>stopwords("english")))</code>
+</li>
+<li><code>plot(dfmBankD, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))</code></li>
+</ol>
 
 <h3>
 <a id="word-clouds" class="anchor" href="#word-clouds" aria-hidden="true"><span class="octicon octicon-link"></span></a>Word Clouds</h3>
