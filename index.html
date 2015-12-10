@@ -41,7 +41,12 @@
         <h3>
 <a id="objectives" class="anchor" href="#objectives" aria-hidden="true"><span class="octicon octicon-link"></span></a>Objectives</h3>
 
-<p>The initial objectives of the competition were to find and associate different words with different banks.  As a group, the main focus was on the positive and negative words associated with each bank.  After these were generated, we created a word cloud for each bank with a heat map, highlighting which words were positive and which were negative.</p>
+<p>The initial objectives of the competition were to find and associate different words with different banks.  The words were then used to determine what main issues or topics the customers were posting about.  In order to do that, the data would have to be separated by positive and negative comments and then the data could be sorted to show the main topics of posts.  After being associated with a bank and topic, the topics should be sifted through to find relevant data.</p>
+
+<h3>
+<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h3>
+
+<p>The data consisted of Twitter and Facebook feeds that had to be cleaned up before being analyzed.  The ASCII characters, white space, and modifiers were removed and underwent natural language processing to normalize the data and clean it.  The normalizing and cleaning make sure the data are all of the same type and have no typos or mistakes.  Then using sentiment analysis, the data was separated into positive and negative posts and then further separated by bank.  The banks were then compared to each other using dendrograms and word clouds to determine common topics between banks.  After cleaning the data, the list contained 160 words that were used over 2000 times.  This was further narrowed by getting rid of useless entries, obscured data, and meta-tags and the list was narrowed down to a list of 70 words.  These words were then analyzed according to frequency used and word clouds were used to show this relationship.</p>
 
 <h3>
 <a id="focus" class="anchor" href="#focus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Focus</h3>
@@ -52,20 +57,124 @@
       * Unresolved issues 
       * Appeal to higher authority
       * Negative perceptions of services rendered
+      * Exceptional Service
 </code></pre>
 
 <h3>
+<a id="code" class="anchor" href="#code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code</h3>
+
+<p>dynamicRequire &lt;- function(reqPackages){
+  for(pkg in reqPackages ){
+    if(!require(pkg, character.only = TRUE)){
+      install.packages(pkg, dependencies = TRUE)<br>
+      require(pkg, quietly = TRUE, character.only = TRUE) 
+    }
+  }
+}
+reqPackages &lt;- c("plyr", "tm", "quanteda", "stringr", "ggplot2",
+                 "lsa","NLP", "openNLP", "SnowballC", "lsa", "tau",
+                 "RColorBrewer", "wordcloud")
+dynamicRequire(reqPackages)
+myStopWords &lt;- as.character(read.csv("myStopWords.txt", header = FALSE, 
+                                     stringsAsFactors = FALSE))
+afinnTerms &lt;- read.delim(file = "AFINN-111.txt", header = FALSE,
+                         stringsAsFactors = FALSE)
+names(afinnTerms) &lt;- c("word", "score")
+myDict &lt;- dictionary(afinnTerms)
+dfTable &lt;- read.table('dataset.txt',header=TRUE, sep="|", stringsAsFactors = FALSE)
+dfTxtAndSrc &lt;- dfTable[, c("MediaType","FullText")]
+dfTxts &lt;- dfTxtAndSrc["FullText"]
+dfTxts$FullText[dfTxts$FullText==""] &lt;- NA
+dfTxtAndSrc$FullText[dfTxts$FullText==""] &lt;- NA
+dfTxts &lt;- na.omit(dfTxts)
+dfTxtAndSrc &lt;- na.omit(dfTxts)
+dfTxts &lt;- as.data.frame(iconv(dfTxts$FullText, "latin1", "ASCII", sub=""))
+colnames(dfTxts) = 'FullText'
+dfTxts$FullText &lt;- gsub("[[:punct:]]", "", dfTxts$FullText, perl = TRUE)
+dfTxts$FullText &lt;- gsub("[[:digit:]]", "", dfTxts$FullText, perl = TRUE)
+dfTxts$FullText &lt;- gsub("[[:cntrl:]]", "", dfTxts$FullText, perl = TRUE)
+dfTxts$FullText &lt;- tolower(dfTxts$FullText)
+indBankA = which(sapply(dfTxts$FullText,function(x) grepl("banka",x)))
+indBankB = which(sapply(dfTxts$FullText,function(x) grepl("bankb",x)))
+indBankC = which(sapply(dfTxts$FullText,function(x) grepl("bankc",x)))
+indBankD = which(sapply(dfTxts$FullText,function(x) grepl("bankd",x)))
+indBankA = which(sapply(dfTxts$FullText,function(x) grepl("banka",x)))
+charBankA = dfTxts[indBankA, ]
+corpA &lt;- corpus(charBankA)
+summary(corpA)
+dfBankA &lt;- as.data.frame(charBankA)
+txtA &lt;- c("twithndlbanka choose a checking account banking managing spending banka makes easy manage banking.")
+tokenize(txtA)
+dfmBankA&lt;- dfm(corpA, ignoredFeatures = c(stopwords("english")))
+plot(dfmBankA, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))
+dfmBankA &lt;- dfm(corpB, ignoredFeatures = c("twithndlbanka", "name", "banka","twithndl",
+                                           "internet","rettwit", "bank", "bankb",
+                                           stopwords("english")))
+plot(dfmBankA, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))
+indBankB = which(sapply(dfTxts$FullText,function(x) grepl("bankb",x)))
+charBankB = dfTxts[indBankB, ]
+corpB &lt;- corpus(charBankB)
+summary(corpB)
+dfBankB&lt;- as.data.frame(charBankB)
+indBankB = which(sapply(dfTxts$FullText,function(x) grepl("bankb",x)))
+charBankB = dfTxts[indBankB, ]
+corpB &lt;- corpus(charBankB)
+summary(corpB)
+dfBankB &lt;- as.data.frame(charBankB)
+txtB &lt;- c("twithndlbankb choose a checking account banking managing spending bankb makes easy manage banking.")
+tokenize(txtB)
+dfmBankB &lt;- dfm(corpB, ignoredFeatures = c(stopwords("english")))
+plot(dfmBankB, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))
+dfmBankB &lt;- dfm(corpB, ignoredFeatures = c("twithndlbankb", "name", "banka","twithndl",
+                                           "internet","rettwit", "bank", "bankc", "bankb", "bankd",
+                                           stopwords("english")))
+plot(dfmBankB, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))
+indBankC = which(sapply(dfTxts$FullText,function(x) grepl("bankc",x)))
+charBankC = dfTxts[indBankC, ]
+corpC &lt;- corpus(charBankC)
+summary(corpC)
+dfBankC&lt;- as.data.frame(charBankC)
+indBankC = which(sapply(dfTxts$FullText,function(x) grepl("bankc",x)))
+charBankC = dfTxts[indBankC, ]
+corpC &lt;- corpus(charBankC)
+summary(corpC)
+dfBankC &lt;- as.data.frame(charBankC)
+txtC &lt;- c("twithndlbankc choose a checking account banking managing spending bankb makes easy manage banking.")
+tokenize(txtC)
+dfmBankC &lt;- dfm(corpC, ignoredFeatures = c(stopwords("english")))
+plot(dfmBankC, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))
+dfmBankC &lt;- dfm(corpC, ignoredFeatures = c("twithndlbankc", "name", "banka","twithndl",
+                                           "internet","rettwit", "bank", "bankc", "bankb", "bankd",
+                                           stopwords("english")))
+plot(dfmBankC, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))
+indBankD = which(sapply(dfTxts$FullText,function(x) grepl("bankd",x)))
+charBankD = dfTxts[indBankD, ]
+corpD &lt;- corpus(charBankD)
+summary(corpD)
+dfBankD&lt;- as.data.frame(charBankD)
+indBankD = which(sapply(dfTxts$FullText,function(x) grepl("bankd",x)))
+charBankD = dfTxts[indBankD, ]
+corpD &lt;- corpus(charBankD)
+summary(corpD)
+dfBankD &lt;- as.data.frame(charBankD)
+txtD &lt;- c("twithndlbankd choose a checking account banking managing spending bankd makes easy manage banking.")
+tokenize(txtD)
+dfmBankD &lt;- dfm(corpD, ignoredFeatures = c(stopwords("english")))
+plot(dfmBankD, max.words=100, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(5, .5))
+dfmBankD &lt;- dfm(corpD, ignoredFeatures = c("twithndlbankd", "name", "banka","twithndl",
+                                           "internet","rettwit", "bank", "bankc", "bankb", "bankd",
+                                           stopwords("english")))
+plot(dfmBankD, max.words=200, random.order=FALSE, colors = brewer.pal(8, "Dark2"), scale=c(4, .25))</p>
+
+<h3>
 <a id="conclusions" class="anchor" href="#conclusions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conclusions</h3>
+
+<p>The data showed that the overall positive comments were higher in Bank A while the overall negative sentiment was highest in Bank D.  Using graphical evidence from the code, the most prevalent words were found to be associated to financial terms.  Of these, the terms were found to be either negative or positive, which shows that people usually only post when dissatisfied with the bank or had an exceptional experience.  While this does not pertain to all posts, it satisfied a large majority.</p>
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
 
 <p>Page created by Tyler Walter.  Data and coding performed by Neal Sakash, Chase Hendley, Don Cole, and Tyler Walter.</p>
-
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out our <a href="https://help.github.com/pages">documentation</a> or <a href="https://github.com/contact">contact support</a> and we’ll help you sort it out.</p>
       </section>
 
     </div>
